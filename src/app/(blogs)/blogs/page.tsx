@@ -1,7 +1,6 @@
 import React from "react";
 
 import Blog from "@/components/Blog";
-import BlogSkeleton from "@/components/skeletons/BlogSkeleton";
 import { getServerSession } from "next-auth";
 import { authOps } from "@/lib/auth";
 import { redirect } from "next/navigation";
@@ -25,12 +24,12 @@ const page = async () => {
       {!blogs && <p>Network error</p>}
       {blogs?.map((eachBlog) => {
         return (
-          <Link href={`/blogs/${eachBlog.id}`}>
+          <Link key={eachBlog.id} href={`/blogs/${eachBlog.id}`}>
             <Blog
               author={eachBlog.user.name}
               title={eachBlog.title}
               content={eachBlog.content}
-              owner= {session.user.name === eachBlog.user.name ? true : false}
+              owner={session.user.name === eachBlog.user.name ? true : false}
             />
           </Link>
         );

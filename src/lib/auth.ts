@@ -1,5 +1,5 @@
 import CredentialsProvider from "next-auth/providers/credentials";
-import { JWT, NextAuthOptions } from "next-auth";
+import {  NextAuthOptions } from "next-auth";
 import prisma from "./db";
 import { loginSchema } from "./zodTypes";
 
@@ -35,11 +35,11 @@ export const authOps = {
         },
       },
 
-      async authorize(creds: any): Promise<any> {
+      async authorize(creds) {
         try {
           const loginDetails = {
-            email: creds.email,
-            password: creds.password,
+            email: creds?.email,
+            password: creds?.password,
           };
 
           const { success } = loginSchema.safeParse(loginDetails);
@@ -49,7 +49,7 @@ export const authOps = {
           }
 
           const user = await prisma.user.findUnique({
-            where: { email: creds.email },
+            where: { email: creds?.email },
             select: {
               password: true,
               id: true,
@@ -57,7 +57,7 @@ export const authOps = {
             },
           });
 
-          if (user && user.password && creds.password === user.password) {
+          if (user && user.password && creds?.password === user.password) {
             return {
               email: creds.email,
               name: user.name,
@@ -78,14 +78,14 @@ export const authOps = {
   secret: process.env.NEXTAUTH_SECRET || "Secret",
 
   callbacks: {
-    jwt: async ({ token, user }): Promise<any> => {
+    jwt: async ({ token, user }) => {
       const newToken = token;
       if (user) {
         newToken.id = user.id;
       }
       return newToken;
     },
-    session: async ({ session, token }): Promise<any> => {
+    session: async ({ session, token }) => {
       const newSession = session;
       newSession.user.id = token.id as number;
       return newSession;

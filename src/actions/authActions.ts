@@ -3,7 +3,7 @@
 import prisma from "@/lib/db";
 import { signupSchema } from "@/lib/zodTypes";
 
-export const signupAction = async (prevState: any, formData: FormData) => {
+export const signupAction = async (prevState: {message: string, ok: boolean | null}, formData: FormData) => {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
   const name = formData.get("name") as string;

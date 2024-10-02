@@ -1,11 +1,9 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import React, { useState, useTransition } from "react";
+import React, {  useTransition } from "react";
 import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
-import { authOps } from "@/lib/auth";
 import Loader from "@/components/Loader";
 import { useSearchParams } from "next/navigation";
 

@@ -28,12 +28,16 @@ export const getBlogsAction = async () => {
   }
 };
 
-export const postBlogAction = async (initiaState: any, formData: FormData) => {
+export const postBlogAction = async (
+  initiaState: { message: string; ok: boolean | null },
+  formData: FormData
+) => {
   const blogDetails: blogType = {
     title: (formData.get("title") as string).trim(),
     content: (formData.get("content") as string).trim(),
   };
-  if (blogDetails.title === "" || blogDetails.content === "") return;
+  if (blogDetails.title === "" || blogDetails.content === "")
+    return { message: "something went wrong", ok: false };
 
   const { success } = blogSchema.safeParse(blogDetails);
 
@@ -43,7 +47,7 @@ export const postBlogAction = async (initiaState: any, formData: FormData) => {
 
   try {
     const userId = parseInt(formData.get("userId") as string);
-    const newBlog = await prisma.blog.create({
+    await prisma.blog.create({
       data: {
         title: formData.get("title") as string,
         content: formData.get("content") as string,
@@ -52,8 +56,8 @@ export const postBlogAction = async (initiaState: any, formData: FormData) => {
     });
 
     revalidatePath("/blogs");
-    // redirect("/blogs");
   } catch (err) {
+    console.log(err);
     return { message: "Network error occurred", ok: false };
   }
 
@@ -90,13 +94,15 @@ export const fetchBlogAction = async (blogId: string) => {
 };
 
 export const updatedBlogAction = async (
-  initialState: any,
+  initialState: { message: string; ok: boolean | null },
   formData: FormData
 ) => {
   const updatedTitle = formData.get("title") as string;
   const updatedContent = formData.get("content") as string;
   const blogId = Number(formData.get("blogId"));
   const session = await getServerSession(authOps);
+
+  if(!session) return {message: "Not logged", ok: false}
 
   const blog = await prisma.blog.findUnique({
     where: {
@@ -110,7 +116,7 @@ export const updatedBlogAction = async (
   }
 
   try {
-    const updateBlog = await prisma.blog.update({
+    await prisma.blog.update({
       where: {
         id: blogId,
       },
