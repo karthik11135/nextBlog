@@ -3,7 +3,8 @@
 import prisma from "@/lib/db";
 import { blogSchema, blogType } from "@/lib/zodTypes";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
+import { getServerSession } from "next-auth";
+import { authOps } from "@/lib/auth";
 
 export const getBlogsAction = async () => {
   try {
@@ -72,6 +73,11 @@ export const fetchBlogAction = async (blogId: string) => {
       select: {
         title: true,
         content: true,
+        user: {
+          select: {
+            name: true,
+          },
+        },
       },
     });
     if (blogFetched) {
@@ -81,4 +87,42 @@ export const fetchBlogAction = async (blogId: string) => {
     console.log(err);
   }
   return { ok: false, blog: undefined };
+};
+
+export const updatedBlogAction = async (
+  initialState: any,
+  formData: FormData
+) => {
+  const updatedTitle = formData.get("title") as string;
+  const updatedContent = formData.get("content") as string;
+  const blogId = Number(formData.get("blogId"));
+  const session = await getServerSession(authOps);
+
+  const blog = await prisma.blog.findUnique({
+    where: {
+      id: blogId,
+      userId: session.user.id,
+    },
+  });
+
+  if (!blog) {
+    return { message: "You can't fool us", ok: false };
+  }
+
+  try {
+    const updateBlog = await prisma.blog.update({
+      where: {
+        id: blogId,
+      },
+      data: {
+        title: updatedTitle,
+        content: updatedContent,
+      },
+    });
+    revalidatePath("/blogs");
+    return { message: "Blog updated", ok: true };
+  } catch (err) {
+    console.log(err);
+    return { message: "Network error", ok: false };
+  }
 };

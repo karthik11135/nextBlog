@@ -25,6 +25,8 @@ const page = async ({ params: { blogId } }: blogIdProps) => {
     notFound();
   }
 
+  console.log(session.user.name, res.blog?.user.name)
+
   return (
     <div className="mx-auto w-full grid my-10 grid-cols-12 gap-4">
       <div className="col-span-8">
@@ -36,13 +38,19 @@ const page = async ({ params: { blogId } }: blogIdProps) => {
           >
             Go back
           </Link>
+        {session.user.name === res.blog?.user.name &&  <Link
+            href={`/blogs/${blogId}/update?title=${res.blog?.title}&content=${res.blog?.content}&owner=${res.blog?.user.name}`}
+            className="flex items-center px-1.5 py-2 border mx-3 cursor-pointer rounded"
+          >
+            Update
+          </Link>}
         </div>
         <p className="px-1 text-lg antialiased prose tracking-wider leading-8 break-keep">
           {res.blog?.content}
         </p>
       </div>
       <div className="col-span-4 py-2 border-2 w-3/6 mx-auto text-center  border-black px-2 bg-yellow-200 h-fit">
-        {session.user.name}
+        {`Author | ${res.blog?.user.name}`}
       </div>
     </div>
   );
