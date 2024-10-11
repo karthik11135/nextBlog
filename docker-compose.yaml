@@ -1,0 +1,23 @@
+services:
+  app:
+    build: .
+    container_name: nextblog-container
+    environment:
+      - DATABASE_URL=postgresql://postgres:mysecretpassword@dbcontainer:5432/postgres
+      - NEXTAUTH_SECRET=de3b7b592bc5eb6890f141e8958688a5
+      - NEXTAUTH_URL=http://localhost:3000
+    ports:
+      - '3000:3000'
+    depends_on:
+      - dbcontainer
+
+  dbcontainer: 
+    image: postgres
+    container_name: dbcontainer
+    environment:
+      - POSTGRES_PASSWORD=mysecretpassword
+    volumes:
+      - voldb:/var/lib/postgresql/data
+
+volumes:
+  voldb:
